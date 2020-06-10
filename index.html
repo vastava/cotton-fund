@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css?family=Playfair+Display+SC:wght@900');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600');
+
+* {
+  font-family: 'Lato', sans-serif;
+}
+
+body {
+  background: #FFFAF1;
+}
+
+
+h1 {
+  font-family: 'Playfair Display SC', serif;
+  font-size: 60px;
+  margin: 0;
+  padding: 0;
+  margin-top: -20px;
+/*  background: white;
+*/}
+
+
+.header {
+  position: absolute;
+  right: 0;
+  top: 5;
+  text-align: center;
+  font-size: 18px;
+/*  background: white;
+*/  padding: 10px 20px;
+}
+.tick line {
+  stroke-dasharray: 3;
+  stroke: #ddd;
+}
+
+  .header {
+/*    position: relative;
+*/    height: 150px;
+  }
+
+/*.container {
+  margin: auto;
+  width: 1280px;
+  padding: 10px;
+  margin-top: 10px;
+  position: relative;
+}
+
+.header {
+  position: absolute;
+  right: 0;
+  top: 5;
+  text-align: center;
+  font-size: 18px;
+  background: white;
+  padding: 10px 20px;
+}
+
+h1 {
+  font-family: 'Sigmar One', cursive;
+  font-size: 60px;
+  margin: 0;
+  padding: 0;
+  margin-top: -20px;
+  background: white;
+}
+
+.header .small {
+  font-size: 11px;
+  margin-top: -20px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.viz {
+  margin-top: 100px;
+}
+
+@media (max-width: 1300px) {
+  body {
+    zoom: 90%;
+  }
+}
+
+@media (max-width: 1160px) {
+  body {
+    zoom: 70%;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    zoom: 100%;
+  }
+
+  .container {
+    width: 100%;
+    text-align: center;
+  }
+
+  .header {
+    position: relative;
+    height: 180px;
+  }
+
+  h1 {
+    font-size: 42px;
+  }
+
+  .viz {
+    zoom: 45%;
+    transform: rotate(90deg);
+    margin-top: 10px;
+  }*/
+}
+</style>
+<body>
+  <div class="container">
+    <div class="header">
+      <span style="font-family: 'Montserrat', sans-serif">Big Brands are</span>
+      <h1>Bankrolling Cotton</h1>
+      <div class="small">
+These companies have publicly supported the protests. They've also donated to Tom Cotton's election campaigns.<br />
+        Hover over each bar to read their statement.
+      </div>
+    </div>
+    <div class="viz"></div>
+  <p>Sources: Judd Legum's <a href="https://popular.info/p/these-companies-are-publicly-embracing?no_cover=true">Popular Info</a> and the <a href="https://americanindependent.com/tom-cotton-military-occupation-businesses-donations-goldman-sachs-bank-of-america-senate-gop-arkansas/">American Independent</a>.</p>
+  <a href="https://twitter.com/anjalii_shrivas?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @anjalii_shrivas</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <a href="https://twitter.com/share?ref_src=twsrc%5Etfw" class="twitter-share-button" data-show-count="false">Tweet</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  </div>
+  
+<!-- load the d3.js library -->     
+<script src="//d3js.org/d3.v4.min.js"></script>
+</body>
+<script type="text/javascript">
+  
+  const margin = {top: 150, right: 10, bottom: 50, left: 200},
+    width = 1280 - margin.left - margin.right,
+    height = 760 - margin.top - margin.bottom;
+
+d3.csv("cotton_corporate pac.csv", (error, data) => {
+  if (error) throw error;
+
+  data.forEach((d) => {
+    d.Amount = +d.Amount;
+  });
+
+  var svg = d3.select(".viz").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", 
+            "translate(" + margin.left + "," + (margin.top ) + ")");
+
+  var y = d3.scaleBand()
+     .domain(data.map(function(d) {return d.Company}))
+     .range([0, height])
+     .padding(0.6);
+
+  var x = d3.scaleLinear()
+    .domain([0, d3.max(data, function(d) {return d.Amount})])
+    .range([0, width]);
+              
+
+  svg.append("g")
+    .style("font-size", "16px")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x))
+      // .tickValues(tickArr)
+      // // .tickSizeInner(-width + margin.top - margin.bottom)
+      // .tickSizeOuter(0))
+    ;
+
+
+ svg.append("g")
+    .style("font-size", "16px")
+    .call(d3.axisLeft(y))
+      // .tickSizeInner(-width + margin.top - margin.bottom)
+      // .tickSizeOuter(0))
+
+  svg.selectAll(".bar")
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", x(0))
+      .attr("y", function(d) {return y(d.Company) - y.bandwidth()/2})
+      .style("fill", function(d) {return d.Color})
+      .attr("stroke", "black")
+      .attr("stroke-width",.25)
+      .attr("height", y.bandwidth()*2)
+      .attr("width", function(d) {return x(d.Amount)})
+      .style('cursor', 'pointer')
+      .on('mouseover', function(d) {
+        mouseOver(rollover,x, y,d);
+      })
+      .on('mouseout', mouseOut)
+      .on('click', function(d) {
+        let win = window.open(d.url, '_blank');
+        win.focus();
+    });      
+  function bar(svg) {
+    svg.selectAll(".bar")
+      .data(data)
+      .enter()
+      .append("rect")
+      .attr("class", "bar")
+      .attr("x", x(0))
+      .attr("y", function(d) {return y(d.Company) - y.bandwidth()/2})
+      .attr("stroke", "black")
+      .attr("stroke-width",2)
+      .attr("height", y.bandwidth()*2)
+      .attr("width", function(d) {return x(d.Amount)});
+    }
+
+  const defs = svg.append('defs');
+  
+  defs.append('clipPath')
+    .attr('id', 'rect-clip1')
+    .call(bar);
+
+
+  svg.selectAll("image")
+    .data(data)
+    .enter()
+    .append('image')
+    .attr('xlink:href', (d) => `images/${d.Image}`)
+    .attr('y', (d) => y(d.Company) - y.bandwidth()/2)
+    // .attr('x', (d) => x(d.Amount) - 500)
+    .attr('x', function(d) {
+      temp = d.Height/(2*y.bandwidth());
+      return x(d.Amount) - d.Width/temp;
+    })
+    // .attr('y', 100)
+    // .attr('width', 512 + 'px')
+    .attr('height', y.bandwidth()*2 - 2+ 'px')
+    // // clip the image using id
+    .attr('clip-path', 'url(#rect-clip1)')
+    .style('cursor', 'pointer')
+    .on('mouseover', function(d) {
+      mouseOver(rollover,x, y,d);
+    })
+    .on('mouseout', mouseOut);
+
+    // axisLabel(svg,'Amount Donated');
+
+
+    var rollover = svg.append('g')
+      .attr('class', 'rollover');
+
+  svg.append("text")             
+      .attr("transform",
+            "translate(" + (width/2) + " ," + 
+                           (height + margin.bottom ) + ")")
+      .style("text-anchor", "middle")
+      .style("font-size", "20px")
+      .text("Amount Donated")
+
+  svg.selectAll(".title")
+      .data(data)
+      .enter()
+      .append('text')
+      .text((d) => `$${d.Amount}`)
+      .attr("x", (d) => x(d.Amount))
+      .attr("y", (d) => y(d.Company) - y.bandwidth()/2 - 2)
+      .attr('class', 'title')
+      .style("text-anchor", "end")
+      // .attr('transform', (d) => `rotate(270,${x(d.title) - 1},${y(d.rating) + 4})`)
+      .style('font-size', '11px')
+      .style('fill', '#333');
+      // .attr("font-size", "10px")
+
+
+  // x.domain(data.map((d) => d.title));
+  // y.domain([6, 9.5]);
+  // ratings(data);
+  // length(data);
+});
+
+
+
+
+function mouseOver(rollover,x, y, d) {
+  var image = d.Statement;
+  var titlePos = y(d.Company) - 50;
+  var xPosition = parseFloat(d3.event.pageX);
+  var yPosition = parseFloat(d3.event.pageY)-10;
+  if (d.Company == "Wells Fargo") {var titlePos = titlePos - 100}
+  // if (titlePos > 1030) {
+  //   titlePos = titlePos - 200;
+  // }
+
+  rollover.append('image')
+    .attr('xlink:href', `images/${image}`)
+    .attr('class', 'rollover-image')
+    .transition()
+    .duration(200)
+    .attr('width', width/4)
+    .attr('y', titlePos)
+    .attr('x', xPosition)
+    .style('pointer-events', 'none');
+}
+
+function mouseOut() {
+  d3.selectAll('.rollover-image')
+    .transition()
+    .duration(200)
+    .style('opacity','0')
+    .remove();
+}
+
+function axisLabel(svg,str) {
+  svg.append('text')
+      .text(str)
+      .attr('x', -(height/2))
+      .attr('y', -40)
+      .style('font-size', '11px')
+      .style("text-anchor", 'middle')
+      .style('transform', 'rotate(270deg)');
+}
+
+</script>
